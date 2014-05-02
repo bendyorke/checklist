@@ -7,7 +7,11 @@ Add tasks to complete daily.  There are 3 states of a task:
  - Due
  - Overdue
 
-Each task has a time that it is due.  1 hour (can be set - see below) before the time set, it will be added to the count (which shows up in the prompt) and marked as 'due'.  If the task is overdue, a "!" will be added to the number (or it will show up in red if using the colored version)
+Each task has a time that it is due.  
+1 hour (can be set - see below) before the time set, it will be marked as 'due'.  
+If the task has not been completed by the task time, it will be marked as 'overdue'
+A tally of all due and overdue tasks will be displayed in the prompt
+If the task is overdue, a "!" will be added to the number (or it will show up in red if using the colored version)
 
 ##Setup
 
