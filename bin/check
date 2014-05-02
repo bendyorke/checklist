@@ -1,0 +1,109 @@
+#! /usr/bin/env ruby
+require 'optparse'
+require_relative '../lib/list.rb'
+require_relative '../lib/task.rb'
+
+module Check
+  COLORS = {
+    due: "%{$fg[yellow]%}",
+    overdue: "%{$fg[red]%}",
+    none: "%{$reset_color%}"
+  }
+
+  def list
+    puts List.new(file).data.sort_by { |task| task.time }
+  end
+
+  def new
+    name = prompt "Please enter a name"
+    time = prompt "Please enter a time"
+    task = Task.new name: name, time: time
+    List.new(file).add_task task
+  end
+
+  def check
+    list = List.new(file)
+    list.data
+        .reject { |task| task.status == :completed }
+        .each do |task|
+          unless ["n", "no"].include? prompt("#{task[:time]}: #{task[:name]} (y/n)")
+            puts "completing..."
+            list.complete_task(task[:name])
+          end
+        end
+  end
+
+  def all
+    list = List.new(file)
+    list.data
+        .reject { |task| task.status == :completed }
+        .each  { |task| list.complete_task task[:name] }
+  end
+
+  def delete
+    prompt "Type the name of the task which you want to delete" do |name|
+      List.new(file).remove_task name
+    end
+  end
+
+  def status
+    List.new(file).count
+  end
+
+  def zsh_prompt
+    list     = List.new(file)
+    priority = list.priority
+    count    = list.count
+    return 0 unless priority
+    STDOUT.write "[#{COLORS[priority]}#{count}#{COLORS[:none]}]"
+  end
+
+  def greyscale_prompt
+    list     = List.new(file)
+    priority = list.priority
+    overdue  = priority == :overdue
+    count    = list.count
+    return 0 unless priority
+    STDOUT.write "[#{count}#{"!" if overdue}]"
+  end
+
+  private
+  def prompt directive
+    print "#{directive}\n> "
+    response = gets.chomp
+    yield response if block_given?
+    response
+  end
+
+  def file
+    ENV['checklist_file'] || './checklist.csv'
+  end
+
+end
+
+ARGV << '-c' if ARGV.empty?
+
+OptionParser.new do |opts|
+  extend Check
+  opts.banner = "This is the banner"
+
+  opts.on('-l', '--list', 'List all tasks')           { list }
+
+  opts.on('-n', '--new', 'Create new task')           { new }
+
+  opts.on('-c', '--check', 'Check off tasks')         { check }
+
+  opts.on('-a', '--all', 'Check off all tasks')       { all }
+
+  opts.on('-d', '--delete', 'Delete tasks')           { delete }
+
+  opts.on('-h', '--help', 'Help for check')           { puts opts; exit }
+
+  opts.on('-s', '--status', 'Checklist status')       { status }
+  
+  opts.on('-z', '--zsh', 'Zsh prompt summary')        { zsh_prompt }
+
+  opts.on('-g', '--greyscale', 'Greyscale prompt')    { greyscale_prompt }
+    
+end.parse!
+
