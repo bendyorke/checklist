@@ -78,7 +78,7 @@ Will list all the tasks, their time, and when they were last completed
 ####Completing tasks
 ```
 $ check
-[time]: [name] (y/n)
+\[time]: [name] (y/n)
 > [y/n]
 ```
 Loops through all due and overdue tasks.  Pressing return without entering a value is the same as typing 'y' - it marks the task as complete
