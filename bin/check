@@ -11,6 +11,7 @@ module Check
   }
 
   def list
+    puts file
     puts List.new(file).data.sort_by { |task| task.time }
   end
 
@@ -76,7 +77,7 @@ module Check
   end
 
   def file
-    ENV['checklist_file'] || './checklist.csv'
+    ENV['checklist_file'] || "#{File.expand_path(File.dirname(__FILE__))}/../checklist.csv"
   end
 
 end
